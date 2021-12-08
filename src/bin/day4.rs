@@ -42,5 +42,6 @@ fn main() -> Result<(), ()> {
             .map(|(n, i)| (mark >> i & 1 ^ 1) * n as u32 * num as u32)
             .sum::<u32>()
     );
+
     Ok(())
 }
