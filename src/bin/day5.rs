@@ -28,7 +28,7 @@ fn main() {
                 None => {
                     points.insert((x, y), 0);
                 }
-                Some(2) => overlapps += 1,
+                Some(1) => overlapps += 1,
                 _ => (),
             }
             if let Some(x) = points.get_mut(&(x, y)) {
