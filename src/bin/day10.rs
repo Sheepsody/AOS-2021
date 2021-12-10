@@ -14,7 +14,7 @@ enum Side {
     Right,
 }
 
-fn get_score(v: Vec<(Bracket, Side)>) -> u32 {
+fn get_score(v: Vec<(Bracket, Side)>) -> u64 {
     v.iter()
         .map(|(b, _)| match b {
             Bracket::Round => 1,
@@ -23,7 +23,7 @@ fn get_score(v: Vec<(Bracket, Side)>) -> u32 {
             Bracket::Angle => 4,
         })
         .rev()
-        .fold(0, |t, n| t * 5 + n)
+        .fold(0, |t, n| t * 5 + n as u64)
 }
 
 fn parse_line(line: Vec<(Bracket, Side)>) -> Option<Vec<(Bracket, Side)>> {
@@ -53,14 +53,14 @@ fn parse_line(line: Vec<(Bracket, Side)>) -> Option<Vec<(Bracket, Side)>> {
     )
 }
 
-fn get_median(mut v: Vec<u32>) -> u32 {
+fn get_median(mut v: Vec<u64>) -> u64 {
     v.sort();
     let pos = v.len() / 2;
     v[pos]
 }
 
 fn main() {
-    let res: Vec<u32> = fs::read_to_string("input/day10.txt")
+    let res: Vec<u64> = fs::read_to_string("input/day10.txt")
         .unwrap()
         .lines()
         .map(|l| {
