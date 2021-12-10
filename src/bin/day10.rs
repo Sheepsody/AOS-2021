@@ -1,6 +1,6 @@
 use std::fs;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 enum Bracket {
     Round,
     Square,
@@ -8,64 +8,59 @@ enum Bracket {
     Angle,
 }
 
-#[derive(Copy, Clone, PartialEq)]
-enum Line {
-    Corrupted,
-    Ok,
-}
-
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 enum Side {
     Left,
     Right,
 }
 
-fn get_score(b: Bracket) -> u32 {
-    match b {
-        Bracket::Round => 3,
-        Bracket::Square => 57,
-        Bracket::Curly => 1197,
-        Bracket::Angle => 25137,
-    }
+fn get_score(v: Vec<(Bracket, Side)>) -> u32 {
+    v.iter()
+        .map(|(b, _)| match b {
+            Bracket::Round => 1,
+            Bracket::Square => 2,
+            Bracket::Curly => 3,
+            Bracket::Angle => 4,
+        })
+        .rev()
+        .fold(0, |t, n| t * 5 + n)
 }
 
-fn check_line(line: Vec<(Bracket, Side)>) -> (Line, u32) {
-    let res = line.iter().fold(
-        Ok(vec![]),
-        |mut res: Result<Vec<(Bracket, Side)>, u32>, (bracket, side)| {
-            if let Ok(ref mut stack) = res {
+fn parse_line(line: Vec<(Bracket, Side)>) -> Option<Vec<(Bracket, Side)>> {
+    line.iter().fold(
+        Some(vec![]),
+        |mut res: Option<Vec<(Bracket, Side)>>, (bracket, side)| {
+            if let Some(ref mut stack) = res {
                 return match side {
                     Side::Left => {
                         stack.push((*bracket, *side));
-                        Ok(stack.to_vec())
+                        Some(stack.to_vec())
                     }
                     Side::Right => match stack.pop() {
                         Some((bb, ss)) => {
-                            if bb != *bracket {
-                                return Err(get_score(*bracket));
+                            if bb != *bracket || ss == *side {
+                                return None;
                             }
-                            if ss == *side {
-                                return Err(get_score(*bracket));
-                            }
-                            Ok(stack.to_vec())
+                            Some(stack.to_vec())
                         }
-                        None => Err(get_score(*bracket)),
+                        None => None,
                     },
                 };
             } else {
                 res
             }
         },
-    );
+    )
+}
 
-    match res {
-        Err(x) => (Line::Corrupted, x),
-        _ => (Line::Ok, 0),
-    }
+fn get_median(mut v: Vec<u32>) -> u32 {
+    v.sort();
+    let pos = v.len() / 2;
+    v[pos]
 }
 
 fn main() {
-    let res: u32 = fs::read_to_string("input/day10.test.txt")
+    let res: Vec<u32> = fs::read_to_string("input/day10.test.txt")
         .unwrap()
         .lines()
         .map(|l| {
@@ -87,11 +82,10 @@ fn main() {
                 })
                 .collect()
         })
-        .filter_map(|l| match check_line(l) {
-            (Line::Corrupted, x) => Some(x),
-            _ => None,
-        })
-        .sum();
+        .filter_map(|l| parse_line(l))
+        .filter(|v| !v.is_empty())
+        .map(|v| get_score(v))
+        .collect();
 
-    println!("{}", res);
+    println!("{}", get_median(res));
 }
