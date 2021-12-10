@@ -60,7 +60,7 @@ fn get_median(mut v: Vec<u32>) -> u32 {
 }
 
 fn main() {
-    let res: Vec<u32> = fs::read_to_string("input/day10.test.txt")
+    let res: Vec<u32> = fs::read_to_string("input/day10.txt")
         .unwrap()
         .lines()
         .map(|l| {
