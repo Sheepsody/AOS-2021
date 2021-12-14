@@ -16,7 +16,7 @@ fn main() {
 
     let mut polymer = String::from(polymer);
 
-    for _ in 0..40 {
+    for _ in 0..10 {
         let mut insertions = vec![];
         for i in 0..polymer.len() - 1 {
             // Find points of insertion
