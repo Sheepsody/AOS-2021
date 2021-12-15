@@ -33,15 +33,31 @@ impl Ord for Cell {
 
 fn main() {
     let mut points: HashMap<(i32, i32), u32> = HashMap::new();
-    fs::read_to_string(FILENAME)
+    let points_list: Vec<((i32, i32), u32)> = fs::read_to_string(FILENAME)
         .unwrap()
         .lines()
         .enumerate()
-        .for_each(|(i, l)| {
-            l.chars().enumerate().for_each(|(j, c)| {
-                points.insert((i as i32, j as i32), c.to_digit(10).unwrap());
-            });
+        .map(|(i, l)| {
+            l.chars()
+                .enumerate()
+                .map(move |(j, c)| ((i as i32, j as i32), c.to_digit(10).unwrap()))
+        })
+        .flatten()
+        .collect();
+
+    let x_max = points_list.iter().map(|((x, _), _)| x).max().unwrap() + 1;
+    let y_max = points_list.iter().map(|((_, y), _)| y).max().unwrap() + 1;
+
+    points_list.iter().for_each(|((x, y), w)| {
+        (0..5).for_each(|xx| {
+            (0..5).for_each(|yy| {
+                points.insert(
+                    (x + xx * x_max, y + yy * y_max),
+                    (w + xx as u32 + yy as u32 - 1) % 9 + 1,
+                );
+            })
         });
+    });
 
     let mut distances: HashMap<(i32, i32), u32> = HashMap::new();
     let mut queue = BinaryHeap::new();
@@ -67,7 +83,8 @@ fn main() {
             });
     }
 
-    let x_max = points.iter().map(|((x, _), _)| x).max().unwrap();
-    let y_max = points.iter().map(|((_, y), _)| y).max().unwrap();
-    println!("{}", distances.get(&(*x_max, *y_max)).unwrap())
+    println!(
+        "{}",
+        distances.get(&(5 * x_max - 1, 5 * y_max - 1)).unwrap()
+    );
 }
